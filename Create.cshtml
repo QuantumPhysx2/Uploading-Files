@@ -1,0 +1,26 @@
+@model TestViewModel
+
+<div>
+  <!-- 'enctype="multipart/form-data"' and 'method="post"' are required when uploading images in .Net Core -->
+  <form enctype="multipart/form-data" asp-action="create" method="post">
+    <div>
+      <input asp-for="Col1" class="custom-file-input" />
+      <label class="custom-file-label">Choose File...</label>
+    </div>
+    <div>
+      <input type="submit" value="Submit" class="btn btn-success" />
+    </div>
+  </form>
+</div>
+
+@section Scripts {
+  <!-- Using AJAX to update file input display text -->
+  <script>
+    $(document).ready(function () {
+      $(".custom-file-input").on("change", function () {
+        var filename = $(this).val().split("\\").pop();
+        $(this).next(".custom-file-label").html(filename);
+      });
+    });
+  </script>
+}
