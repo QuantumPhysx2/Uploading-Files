@@ -1,0 +1,43 @@
+using Microsoft.AspNetCore.Hosting;
+
+public async Task<IActionResult> Create([Bind("Col1,Col2,Col3")] TestModel model, TestViewModel viewModel) 
+{
+  if (ModelState.IsValid)
+  {
+    // Instantiate var that will be used to append GUID w/ the filename w/ file extension
+    // ...set to null so that it doesn't retain garbage values (from previous use)
+    string uniqueFileName = null;
+    if (viewModel.[Column] != null)
+    {
+      // Define var to retrieve 'wwwroot/images' folder
+      // ...note: IWebHostEnvironment interface will need to included via DI
+      string dedicatedFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
+      
+      // Prepare the user's input image file to be added to the db
+      uniqueFileName = Guid.NewGuid().ToString() + "_" + testViewModel.[Column].FileName;
+      
+      // Define var that automatically puts the input image into the 'wwwroot/images' folder
+      string filePath = Path.Combine(dedicatedFolder, uniqueFileName);
+      
+      // Create a new file in 'wwwroot/images/{GUID}_{file_name}{extension}
+      await testViewModel.[Column].CopyToAsync(new FileStream(filePath, FileMode.Create));
+    }
+    
+    // Create a new db entity
+    TestModel newEntity = new TestModel
+    {
+      Col1 = uniqueFileName,
+      Col2 = model.Col2,
+      Col3 = model.Col3
+    };
+    
+    // Add the new db entity
+    _context.Add(newEntity);
+    
+    // Save changes to db
+    await _context.SaveChangesAsync();
+    
+    return RedirectToAction(nameof(Index));
+  }
+  return View(model);
+}
